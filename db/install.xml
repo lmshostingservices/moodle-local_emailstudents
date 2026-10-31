@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/emailstudents/db" VERSION="20261031" COMMENT="XMLDB file for local_emailstudents"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_emailstudents_msg" COMMENT="Student email messages">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="senderid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User who composed the message"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="System or course context the message was sent from"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course id when sent from a course, else 0"/>
+        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="body" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="bodyformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="fromtype" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="noreply" SEQUENCE="false" COMMENT="noreply, support or sender"/>
+        <FIELD NAME="replyto" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="replytoname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="filters" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON of recipient filters used"/>
+        <FIELD NAME="attachmode" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="attach" SEQUENCE="false" COMMENT="attach or links"/>
+        <FIELD NAME="copytosender" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="queued" SEQUENCE="false" COMMENT="queued, sending, complete, cancelled"/>
+        <FIELD NAME="total" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="sentcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="failcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timescheduled" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timestarted" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecompleted" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="senderid" TYPE="foreign" FIELDS="senderid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="contextid" TYPE="foreign" FIELDS="contextid" REFTABLE="context" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="status" UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_emailstudents_rcpt" COMMENT="Per-recipient delivery state for each student email">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="messageid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course used for this recipient's course tags"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 pending, 1 sent, 2 failed, 3 skipped"/>
+        <FIELD NAME="timesent" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="messageid" TYPE="foreign" FIELDS="messageid" REFTABLE="local_emailstudents_msg" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="messagestatus" UNIQUE="false" FIELDS="messageid, status"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_emailstudents_tpl" COMMENT="Saved email templates">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Owner, 0 for built-in starters"/>
+        <FIELD NAME="shared" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Visible to every sender"/>
+        <FIELD NAME="starter" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Built-in starter template"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="body" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="bodyformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
